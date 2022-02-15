@@ -1,0 +1,452 @@
+/**
+ * JavaCC template file created by SF JavaCC plugin 1.5.28+ wizard for JavaCC 1.5.0+
+ */
+/*GROUP1- IAR:
+Mona Hafez.-1780735
+Bodor Alamri-1805739
+Razan Aljuhani-1806065
+Shuroog Alshaikh-1812184
+ */
+options
+{
+  static = true;
+}
+
+PARSER_BEGIN(masha)
+package MASHA_Language;
+
+public class masha
+{
+  public static void main(String args []) throws ParseException
+  {
+    masha parser = new masha(System.in);
+    while (true)
+    {
+      System.out.println("Welcome to Masha language");
+      System.out.print("-------------------------------\n");
+      System.out.print("Please enter an expression:");
+      try
+      {
+        masha.start();
+        System.out.println();
+        System.out.println("Good Job! Your statment is Correct :) .\n\n");
+      }
+      catch (Exception e)
+      {
+        System.out.println();
+        System.out.println("Oops.Wrong statement, Try again :( .\n\n");
+        System.out.println(e.getMessage());
+        masha.ReInit(System.in);
+      }
+      catch (Error e)
+      {
+        System.out.println("Oops. Not accepted statement, Try again :( .\n\n");
+        break;
+      }
+    }
+  }
+}
+
+PARSER_END(masha)
+
+/* White Spaces */
+SKIP :
+{
+  " "
+| "\r"
+| "\t"
+| "\n"
+}
+
+TOKEN : /* Identifiers and data type  */
+{
+  < STATIC_ID :
+    "S" (< DIGIT >)+
+    (
+      (< SMALL_LETTER >)*
+    | (< CAPITAL_LETTER >)*
+    )+ >
+  {
+    System.out.println("You declare a static varible.");
+  }
+| < VARIABLE_ID :
+    "V" (< DIGIT >)+
+    (
+      (< SMALL_LETTER >)*
+    | (< CAPITAL_LETTER >)*
+    )+ >
+  {
+    System.out.println("You declare a varible.");
+  }
+| < CONSTANT_ID :
+    "C" (< DIGIT >)+
+    (
+      (< SMALL_LETTER >)*
+    | (< CAPITAL_LETTER >)*
+    )+ >
+  {
+    System.out.println("You declare a constant varible.");
+  }
+| < INT : (< DIGIT >)+ >
+| < FLOAT : (< DIGIT >)+ (".") (< DIGIT >)+ >
+| < STRING :
+    "#"
+    (
+      (< SMALL_LETTER >)
+    | (< CAPITAL_LETTER >)
+    )+
+    (< DIGIT >)* >
+  //represent the list elements. 
+| < LIST_ELEMENTS :
+    (
+      (
+        (
+          < INT >
+        | < FLOAT >
+        | < STRING >
+        )
+        (",")
+      )+
+    )
+    (
+      < INT >
+    | < FLOAT >
+    | < STRING >
+    ) >
+| < #CAPITAL_LETTER : [ "A"-"Z" ] >
+| < #DIGIT : [ "0"-"9" ] >
+| < #SMALL_LETTER : [ "a"-"z" ] >
+}
+
+TOKEN : /* Keywords */
+{
+  < IF : "if" > // (if) and (else) used with conditional statements. 
+| < ELSE : "else" >
+| < FUN : "Fun" > // To define the function (method)
+| < UNTIL : "Until" > // used to
+| < VAR : "var" >
+| < LIST : "list" >
+}
+
+TOKEN : /* Arithmetic Operations */
+{
+  < PLUS : "+" >
+| < MINUS : "-" >
+| < MULTIPLY : "*" >
+| < DIVIDE : "/" >
+| < ASSIGNMENT : "=" >
+}
+
+TOKEN : /* Relational Operations */
+{
+  < EQUAL : "=?" >
+| < INEQUAL : "~=?" >
+| < LESS_THAN : "<?" >
+| < LESS_OR_EQUAL : "<=?" >
+| < GREAT_THAN : ">?" >
+| < GREAT_OR_EQUAL : ">=?" >
+}
+
+TOKEN : /* Logical Operators */
+{
+  < AND : "&" >
+| < OR : "OR" >
+| < XOR : "XOR" >
+| < NOT : "!" >
+}
+
+TOKEN : /* Punctuation Marks */
+{
+  < LEFT_PAR : "(" > //Left Parentheses
+| < RIGHT_PAR : ")" > //Right Parentheses 
+| < LEFT_SQR_BRACKT : "[" > // Left Square Brackets
+| < RIGHT_SQR_BRACKT : "]" > //Right Square Brackets
+| < DOUBLE_QUOTES : " \" " > //Double Quotes 
+| < COMMA : "," >
+| < FULL_STOP : "." >
+| < COLON : ":" >
+}
+
+// Discard the comments 
+SPECIAL_TOKEN :
+{
+  < SINGLE_LINE_COMMENT :
+    "::" (~[ "\n", "\r" ])*
+    (
+      "\n"
+    | "\r"
+    | "\r\n"
+    ) >
+  {
+    System.out.println("Your write a comment, it is discarded!");
+  }
+}
+
+void start() :
+{}
+{
+  statement()
+}
+
+void statement() :
+{}
+{
+  (
+    LOOKAHEAD(2) // look to the second position to identify the operation. 
+    decleration()
+  | logical_stmt()
+  | conditional_stmt()
+  | comparison_stmet()
+  | loop()
+  )
+| list()
+}
+
+void decleration() :
+{}
+{
+  // the statement should end with full stop (.)
+  (
+    LOOKAHEAD(2)
+    declere_VAR()
+  | arithmetic_stmt()
+  )
+  < FULL_STOP >
+}
+
+// used to write an arithmetic expression.
+void arithmetic_stmt() :
+{}
+{
+  // the structure could be: var C0num + 5 OR  6*6
+  (
+    (
+      ID()
+    | number()
+    )
+    artimatic_operation()
+    (
+      ID()
+    | number()
+    )
+  )+
+  {
+    System.out.println("You used an artimatic statment!");
+  }
+}
+
+// this method used to declare a variable
+void declere_VAR() :
+{}
+{
+  // the structure could be: var C0num = C1num  OR  var C0num = 5 
+  < VAR > ID() < ASSIGNMENT >
+  (
+    ID()
+  | number()
+  | < STRING >
+  )
+}
+
+// work
+void logical_stmt() :
+{}
+{
+  (
+    Binary_logical_stmt()
+  | unary_logical_stmt()
+  )
+  // the structure could be: (V1num <? V2num) & (10 ~=? 50.0) 
+  {
+    System.out.println("You used a logical statment!");
+  }
+}
+
+void unary_logical_stmt() :
+{}
+{
+  < NOT > < LEFT_PAR > comparison_stmet() < RIGHT_PAR >
+}
+
+void Binary_logical_stmt() :
+{}
+{
+  < LEFT_PAR > comparison_stmet() < RIGHT_PAR > logical_operation() < LEFT_PAR > comparison_stmet() < RIGHT_PAR >
+}
+
+void conditional_stmt() :
+{}
+{
+  // the structure is: if (V1num <? V2num): [V1num+1.]  else [ V2num+1.]
+  // OR: if (V1num <? V2num): [V1num+1.] .
+  < IF > < LEFT_PAR >
+  (
+    comparison_stmet()
+  )
+  < RIGHT_PAR > < COLON > 
+  < LEFT_SQR_BRACKT >
+  (
+    statement()
+  )+
+  < RIGHT_SQR_BRACKT >
+  (
+    else_stmt()
+  | < FULL_STOP >
+  )
+  {
+    System.out.println("You used a conditional statment!");
+  }
+}
+
+void else_stmt() :
+{}
+{
+  < ELSE > < LEFT_SQR_BRACKT >
+  (
+    statement()
+  )+
+  < RIGHT_SQR_BRACKT >
+}
+
+// work
+void comparison_stmet() :
+{}
+{
+  // the structure could be: V1num <? V2num OR 10 ~=? 50.0
+  (
+    ID()
+  | number()
+  )
+  comparison_operation()
+  (
+    ID()
+  | number()
+  )
+  {
+    System.out.println("You used a comparison statment!");
+  }
+}
+
+// used to create a loop
+void loop() :
+{}
+{
+  (
+    until()
+  | fun()
+  )
+  {
+    System.out.println("You used an Iterative statement!");
+  }
+}
+
+void until() :
+{}
+{
+  /* the structure is: 
+Until ((V1num <? 5) & (V1num~=? -1)): 
+[V1num+1.]
+ */
+  < UNTIL > < LEFT_PAR >
+  (
+    comparison_stmet()
+  | logical_stmt()
+  )
+  < RIGHT_PAR > < COLON > 
+  < LEFT_SQR_BRACKT >
+  (
+    statement()
+  )+
+  < RIGHT_SQR_BRACKT >
+}
+
+void fun() :
+{}
+{
+  /* the structure: 
+Fun (0: 1 :5): 
+[V1num+1.]
+ */
+  < FUN > < LEFT_PAR > < INT > < COLON > < INT > < COLON > < INT > < RIGHT_PAR > < COLON > 
+  < LEFT_SQR_BRACKT >
+  (
+    statement()
+  )+
+  < RIGHT_SQR_BRACKT >
+  {
+    System.out.println("You used a function!");
+  }
+}
+
+void list() :
+{}
+{
+  //| < LIST_ELEMENTS :  >
+  /* the structure: 
+list V1Addresses =[#Jeddah,#Makkah]. */
+
+  (
+    < LIST > ID() < ASSIGNMENT > < LEFT_SQR_BRACKT > 
+    // the elemnts in the list
+    < LIST_ELEMENTS > 
+    // end of the list
+    < RIGHT_SQR_BRACKT > < FULL_STOP >
+  )
+  {
+    System.out.println("You used a list!");
+  }
+}
+
+void ID() :
+{}
+{
+  (
+    < STATIC_ID >
+  | < VARIABLE_ID >
+  | < CONSTANT_ID >
+  )
+}
+
+void number() :
+{}
+{
+  (
+    < INT >
+  | < FLOAT >
+  )
+}
+
+void artimatic_operation() :
+{}
+{
+  (
+    < PLUS >
+  | < MINUS >
+  | < MULTIPLY >
+  | < DIVIDE >
+  )
+}
+
+void logical_operation() :
+{}
+{
+  (
+    < AND >
+  | < OR >
+  | < XOR >
+  | < NOT >
+  )
+}
+
+void comparison_operation() :
+{}
+{
+  (
+    < EQUAL >
+  | < INEQUAL >
+  | < LESS_THAN >
+  | < LESS_OR_EQUAL >
+  | < GREAT_THAN >
+  | < GREAT_OR_EQUAL >
+  )
+}
